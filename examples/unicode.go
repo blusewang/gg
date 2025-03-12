@@ -1,6 +1,6 @@
 package main
 
-import "github.com/fogleman/gg"
+import "github.com/blusewang/gg"
 
 func main() {
 	const S = 4096 * 2
@@ -10,7 +10,7 @@ func main() {
 	dc.SetRGB(1, 1, 1)
 	dc.Clear()
 	dc.SetRGB(0, 0, 0)
-	if err := dc.LoadFontFace("Xolonium-Regular.ttf", F); err != nil {
+	if err := dc.LoadFontFace("/Library/Fonts/Arial Unicode.ttf", F); err != nil {
 		panic(err)
 	}
 	for r := 0; r < 256; r++ {

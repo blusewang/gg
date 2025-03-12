@@ -36,7 +36,7 @@ func main() {
 
 ## Examples
 
-There are [lots of examples](https://github.com/fogleman/gg/tree/master/examples) included. They're mostly for testing the code, but they're good for learning, too.
+There are [lots of examples](https://github.com/blusewang/gg/tree/master/examples) included. They're mostly for testing the code, but they're good for learning, too.
 
 ![Examples](http://i.imgur.com/tMFoyzu.png)
 

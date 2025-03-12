@@ -3,7 +3,7 @@ package main
 import (
 	"math/rand"
 
-	"github.com/fogleman/gg"
+	"github.com/blusewang/gg"
 )
 
 func main() {

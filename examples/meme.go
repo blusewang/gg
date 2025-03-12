@@ -1,13 +1,13 @@
 package main
 
-import "github.com/fogleman/gg"
+import "github.com/blusewang/gg"
 
 func main() {
 	const S = 1024
 	dc := gg.NewContext(S, S)
 	dc.SetRGB(1, 1, 1)
 	dc.Clear()
-	if err := dc.LoadFontFace("/Library/Fonts/Impact.ttf", 96); err != nil {
+	if err := dc.LoadFontFace("/Library/Fonts/Arial Unicode.ttf", 128); err != nil {
 		panic(err)
 	}
 	dc.SetRGB(0, 0, 0)
