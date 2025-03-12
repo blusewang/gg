@@ -22,9 +22,13 @@ func main() {
 	dc.SetFontFace(face)
 	text := "Hello, world!"
 	w, h := dc.MeasureString(text)
+
+	dc.Fill()
+	dc.Push()
 	dc.Rotate(gg.Radians(10))
+	dc.DrawStringAnchored(text, 100, 180, 0.0, 0.0)
 	dc.DrawRectangle(100, 180, w, h)
 	dc.Stroke()
-	dc.DrawStringAnchored(text, 100, 180, 0.0, 0.0)
+	dc.Pop()
 	dc.SavePNG("out.png")
 }

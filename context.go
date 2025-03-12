@@ -3,6 +3,7 @@ package gg
 
 import (
 	"errors"
+	"golang.org/x/image/math/fixed"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -77,7 +78,7 @@ type Context struct {
 	fontHeight    float64
 	matrix        Matrix
 	stack         []*Context
-	letterSpacing int
+	letterSpacing int32
 }
 
 // NewContext creates a new image.RGBA with the specified width and height
@@ -704,7 +705,7 @@ func (dc *Context) LoadFontFace(path string, points float64) error {
 	return err
 }
 
-func (dc *Context) SetLetterSpacing(s int) {
+func (dc *Context) SetLetterSpacing(s int32) {
 	dc.letterSpacing = s
 }
 
@@ -719,7 +720,29 @@ func (dc *Context) drawString(im *image.RGBA, s string, x, y float64) {
 		Face: dc.fontFace,
 		Dot:  fixp(x, y),
 	}
-	d.DrawString(s)
+
+	// 重写写字逻辑，支持字间距+斜着写
+	prevC := rune(-1)
+	for _, c := range s {
+		if prevC >= 0 {
+			d.Dot.X += d.Face.Kern(prevC, c)
+		}
+		dr, mask, maskp, advance, ok := d.Face.Glyph(d.Dot, c)
+		if !ok {
+			continue
+		}
+		sr := dr.Sub(dr.Min)
+		transformer := draw.BiLinear
+		fx, fy := float64(dr.Min.X), float64(dr.Min.Y)
+		m := dc.matrix.Translate(fx, fy)
+		s2d := f64.Aff3{m.XX, m.XY, m.X0, m.YX, m.YY, m.Y0}
+		transformer.Transform(d.Dst, s2d, d.Src, sr, draw.Over, &draw.Options{
+			SrcMask:  mask,
+			SrcMaskP: maskp,
+		})
+		d.Dot.X += advance + fixed.Int26_6(dc.letterSpacing<<6)
+		prevC = c
+	}
 }
 
 // DrawString draws the specified text at the specified point.
@@ -802,7 +825,7 @@ func (dc *Context) MeasureString(s string) (w, h float64) {
 		Face: dc.fontFace,
 	}
 	a := d.MeasureString(s)
-	return float64(a>>6) + float64((len([]rune(s)))*dc.letterSpacing), dc.fontHeight
+	return float64(a>>6) + float64((len([]rune(s)))*int(dc.letterSpacing)), dc.fontHeight
 }
 
 // WordWrap wraps the specified string to the given max width and current
