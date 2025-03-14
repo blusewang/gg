@@ -2,7 +2,6 @@ package gg
 
 import (
 	"strings"
-	"unicode"
 )
 
 type measureStringer interface {
@@ -11,17 +10,20 @@ type measureStringer interface {
 
 func splitOnSpace(x string) []string {
 	var result []string
-	pi := 0
-	ps := false
-	for i, c := range x {
-		s := unicode.IsSpace(c)
-		if s != ps && i > 0 {
-			result = append(result, x[pi:i])
-			pi = i
-		}
-		ps = s
+	for _, c := range []rune(x) {
+		result = append(result, string(c))
 	}
-	result = append(result, x[pi:])
+	//pi := 0
+	//ps := false
+	//for i, c := range x {
+	//	s := unicode.IsSpace(c)
+	//	if s != ps && i > 0 {
+	//		result = append(result, x[pi:i])
+	//		pi = i
+	//	}
+	//	ps = s
+	//}
+	//result = append(result, x[pi:])
 	return result
 }
 
