@@ -841,12 +841,12 @@ func (dc *Context) DrawStringWrappedWithStroke(s string, x, y, ax, ay, width, he
 	ay = 1
 	h = 0
 	for _, line := range lines {
+		if h+dc.fontHeight > height {
+			break
+		}
 		dc.DrawStringAnchoredWithStroke(line, x, y, ax, ay, strokeWidth, strokeColor)
 		y += dc.fontHeight * lineSpacing
 		h += dc.fontHeight * lineSpacing
-		if h > height {
-			break
-		}
 	}
 }
 
@@ -880,7 +880,7 @@ func (dc *Context) MeasureString(s string) (w, h float64) {
 		Face: dc.fontFace,
 	}
 	a := d.MeasureString(s)
-	return float64(a>>6) + float64((len([]rune(s)))*int(dc.letterSpacing)), dc.fontHeight
+	return float64(a>>6) + float64((len([]rune(s))-1)*int(dc.letterSpacing)), dc.fontHeight
 }
 
 // WordWrap wraps the specified string to the given max width and current
