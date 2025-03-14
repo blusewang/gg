@@ -766,6 +766,25 @@ func (dc *Context) DrawStringAnchored(s string, x, y, ax, ay float64) {
 	}
 }
 
+func (dc *Context) DrawStringAnchoredWithStroke(s string, x, y, ax, ay float64, strokeWidth int, strokeColor string) {
+	c := dc.color
+	dc.SetHexColor(strokeColor)
+	strokeWidth += 1
+	for dx := -strokeWidth; dx <= strokeWidth; dx++ {
+		for dy := -strokeWidth; dy <= strokeWidth; dy++ {
+			// 圆角
+			if dx*dx+dy*dy >= strokeWidth*strokeWidth {
+				continue
+			}
+			if dx != 0 || dy != 0 {
+				dc.DrawStringAnchored(s, x+float64(dx), y+float64(dy), ax, ay)
+			}
+		}
+	}
+	dc.color = c
+	dc.DrawStringAnchored(s, x, y, ax, ay)
+}
+
 // DrawStringWrapped word-wraps the specified string to the given max width
 // and then draws it at the specified anchor point using the given line
 // spacing and text alignment.
@@ -792,6 +811,37 @@ func (dc *Context) DrawStringWrapped(s string, x, y, ax, ay, width, height, line
 	h = 0
 	for _, line := range lines {
 		dc.DrawStringAnchored(line, x, y, ax, ay)
+		y += dc.fontHeight * lineSpacing
+		h += dc.fontHeight * lineSpacing
+		if h > height {
+			break
+		}
+	}
+}
+
+func (dc *Context) DrawStringWrappedWithStroke(s string, x, y, ax, ay, width, height, lineSpacing float64, align Align, strokeWidth int, strokeColor string) {
+	lines := dc.WordWrap(s, width)
+
+	// sync h formula with MeasureMultilineString
+	h := float64(len(lines)) * dc.fontHeight * lineSpacing
+	h -= (lineSpacing - 1) * dc.fontHeight
+
+	x -= ax * width
+	y -= ay * h
+	switch align {
+	case AlignLeft:
+		ax = 0
+	case AlignCenter:
+		ax = 0.5
+		x += width / 2
+	case AlignRight:
+		ax = 1
+		x += width
+	}
+	ay = 1
+	h = 0
+	for _, line := range lines {
+		dc.DrawStringAnchoredWithStroke(line, x, y, ax, ay, strokeWidth, strokeColor)
 		y += dc.fontHeight * lineSpacing
 		h += dc.fontHeight * lineSpacing
 		if h > height {
