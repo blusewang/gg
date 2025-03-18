@@ -79,6 +79,7 @@ type Context struct {
 	matrix        Matrix
 	stack         []*Context
 	letterSpacing int32
+	isDebug       bool
 }
 
 // NewContext creates a new image.RGBA with the specified width and height
@@ -215,6 +216,10 @@ func (dc *Context) SetFillRuleWinding() {
 
 func (dc *Context) SetFillRuleEvenOdd() {
 	dc.fillRule = FillRuleEvenOdd
+}
+
+func (dc *Context) SetDebug(isDebug bool) {
+	dc.isDebug = isDebug
 }
 
 // Color Setters
@@ -754,6 +759,14 @@ func (dc *Context) DrawString(s string, x, y float64) {
 // The anchor point is x - w * ax, y - h * ay, where w, h is the size of the
 // text. Use ax=0.5, ay=0.5 to center the text at the specified point.
 func (dc *Context) DrawStringAnchored(s string, x, y, ax, ay float64) {
+	if dc.isDebug {
+		// debug
+		_c := dc.color
+		dc.SetRGBA(1, 1, 1, 0.5)
+		dc.DrawCircle(x, y, 2)
+		dc.Fill()
+		dc.color = _c
+	}
 	w, h := dc.MeasureString(s)
 	x -= ax * w
 	y += ay * h
@@ -807,6 +820,21 @@ func (dc *Context) DrawStringWrapped(s string, x, y, ax, ay, width, height, line
 		ax = 1
 		x += width
 	}
+	if dc.isDebug {
+		// debug
+		_c := dc.color
+		_x := x - width*ax
+		_y := y - height*ay
+		dc.SetRGBA(1, 1, 1, 0.5)
+		dc.SetLineWidth(2)
+		dc.MoveTo(_x, _y)
+		dc.LineTo(_x+width, _y)
+		dc.LineTo(_x+width, _y+height)
+		dc.LineTo(_x, _y+height)
+		dc.ClosePath()
+		dc.Fill()
+		dc.color = _c
+	}
 	ay = 1
 	h = 0
 	for _, line := range lines {
@@ -837,6 +865,21 @@ func (dc *Context) DrawStringWrappedWithStroke(s string, x, y, ax, ay, width, he
 	case AlignRight:
 		ax = 1
 		x += width
+	}
+	if dc.isDebug {
+		// debug
+		_c := dc.color
+		_x := x - width*ax
+		_y := y - height*ay
+		dc.SetRGBA(1, 1, 1, 0.5)
+		dc.SetLineWidth(2)
+		dc.MoveTo(_x, _y)
+		dc.LineTo(_x+width, _y)
+		dc.LineTo(_x+width, _y+height)
+		dc.LineTo(_x, _y+height)
+		dc.ClosePath()
+		dc.Fill()
+		dc.color = _c
 	}
 	ay = 1
 	h = 0
